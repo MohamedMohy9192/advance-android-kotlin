@@ -25,13 +25,30 @@ import androidx.core.content.ContextCompat
 import com.example.android.eggtimernotifications.R
 import com.example.android.eggtimernotifications.util.sendNotification
 
-class AlarmReceiver: BroadcastReceiver() {
+/**
+ * AlarmReceiver is triggered by the AlarmManager to send the notification when the user-defined timer is up.
+ */
+class AlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         // TODO: Step 1.10 [Optional] remove toast
-        Toast.makeText(context, context.getText(R.string.eggs_ready), Toast.LENGTH_SHORT).show()
+        // Toast.makeText(context, context.getText(R.string.eggs_ready), Toast.LENGTH_SHORT).show()
+
+        // NotificationManager is a system service that provides all the functions
+        // exposed for the notifications API, including the extension function you added.
+        // Anytime you want to send, cancel, or update a notification you need to request
+        // an instance of the NotificationManager from the system.
 
         // TODO: Step 1.9 add call to sendNotification
+        val notificationManager = ContextCompat.getSystemService(
+            context,
+            NotificationManager::class.java
+        ) as NotificationManager
+
+        notificationManager.sendNotification(
+            context.getText(R.string.eggs_ready).toString(),
+            context
+        )
 
     }
 

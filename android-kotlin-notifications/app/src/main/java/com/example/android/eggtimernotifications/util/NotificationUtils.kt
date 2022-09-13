@@ -41,30 +41,75 @@ fun NotificationManager.sendNotification(messageBody: String, applicationContext
     // Create the content intent for the notification, which launches
     // this activity
     // TODO: Step 1.11 create intent
+    val contentIntent = Intent(applicationContext, MainActivity::class.java)
 
+    // PendingIntent grants rights to another application or the system to perform an operation on behalf of your application.
+    // A PendingIntent itself is simply a reference to a token maintained by the system
+    // describing the original data used to retrieve it.
+    // This means that, even if its owning application's process is killed,
+    // the PendingIntent itself will remain usable from other processes it has been given to.
+    // In this case, the system will use the pending intent to open the app on behalf of you,
+    // regardless of whether or not the timer app is running.
     // TODO: Step 1.12 create PendingIntent
-
+    val contentPendingIntent = PendingIntent.getActivity(
+        applicationContext,
+        NOTIFICATION_ID,
+        contentIntent,
+        // The PendingIntent flag specifies the option to create a new PendingIntent or use an existing one.
+        // set PendingIntent.FLAG_UPDATE_CURRENT as the flag since you do not want to create a new notification
+        // if there is an existing one. This way you will be modifying the current PendingIntent which is associated with the intent you are supplying.
+        PendingIntent.FLAG_UPDATE_CURRENT
+    )
     // TODO: Step 2.0 add style
 
     // TODO: Step 2.2 add snooze action
 
     // TODO: Step 1.2 get an instance of NotificationCompat.Builder
     // Build the notification
+    val builder = NotificationCompat.Builder(
+        applicationContext,
+        applicationContext.getString(R.string.egg_notification_channel_id)
+    )
 
     // TODO: Step 1.8 use the new 'breakfast' notification channel
 
     // TODO: Step 1.3 set title, text and icon to builder
+    builder.setSmallIcon(R.drawable.cooked_egg)
+    builder.setContentTitle(applicationContext.getString(R.string.notification_title))
+    builder.setContentText(messageBody)
 
     // TODO: Step 1.13 set content intent
+    builder.setContentIntent(contentPendingIntent)
+    // set setAutoCancel() to true, so that when the user taps on the notification,
+    // the notification dismisses itself as it takes them to the app.
+    builder.setAutoCancel(true)
 
-        // TODO: Step 2.1 add style to builder
+    // TODO: Step 2.1 add style to builder
 
-        // TODO: Step 2.3 add snooze action
+    // TODO: Step 2.3 add snooze action
 
-        // TODO: Step 2.5 set priority
+    // TODO: Step 2.5 set priority
 
     // TODO: Step 1.4 call notify
+    // This ID represents the current notification instance and is needed for updating
+    // or canceling this notification. Since your app will only have one active notification
+    // at a given time, you can use the same ID for all your notifications.
+
+    // Notice that you can directly call notify() since you are performing the call from an extension function on the same class.
+    notify(NOTIFICATION_ID, builder.build())
 
 }
 
 // TODO: Step 1.14 Cancel all notifications
+/**
+ * Cancels all notifications.
+ *
+ * If you set the timer, get a notification, and set the timer again,
+ * the previous notification stays on the status bar while the new timer is running.
+ * This can confuse your user if the app is in the background, and may result in undercooked eggs.
+ * To fix this, you need to clear the previous notification when you start a new timer.
+ *
+ */
+fun NotificationManager.cancelNotifications() {
+    cancelAll()
+}

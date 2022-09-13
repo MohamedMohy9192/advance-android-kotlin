@@ -27,6 +27,10 @@ import android.text.format.DateUtils
 import androidx.core.app.AlarmManagerCompat
 import androidx.core.content.ContextCompat
 
+/**
+ *
+ * SnoozeReceiver handles the user click to snooze the notification.
+ */
 class SnoozeReceiver: BroadcastReceiver() {
     private val REQUEST_CODE = 0
 
