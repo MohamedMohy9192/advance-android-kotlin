@@ -61,8 +61,22 @@ fun NotificationManager.sendNotification(messageBody: String, applicationContext
         PendingIntent.FLAG_UPDATE_CURRENT
     )
     // TODO: Step 2.0 add style
-
+    val eggImage = BitmapFactory.decodeResource(
+        applicationContext.resources,
+        R.drawable.cooked_egg
+    )
+    val bigPicStyle = NotificationCompat.BigPictureStyle()
+        .bigPicture(eggImage)
+        // Set bigLargeIcon() to null so that the large icon goes away when the notification is expanded.
+        .bigLargeIcon(null)
     // TODO: Step 2.2 add snooze action
+    val snoozeIntent = Intent(applicationContext, SnoozeReceiver::class.java)
+    val snoozePendingIntent: PendingIntent = PendingIntent.getBroadcast(
+        applicationContext,
+        REQUEST_CODE,
+        snoozeIntent,
+        PendingIntent.FLAG_ONE_SHOT
+    )
 
     // TODO: Step 1.2 get an instance of NotificationCompat.Builder
     // Build the notification
@@ -85,10 +99,23 @@ fun NotificationManager.sendNotification(messageBody: String, applicationContext
     builder.setAutoCancel(true)
 
     // TODO: Step 2.1 add style to builder
+    builder.setStyle(bigPicStyle)
+    // Set the large icon with setLargeIcon() to the eggImage, so the image will be displayed
+    // as a smaller icon when notification is collapsed.
+    builder.setLargeIcon(eggImage)
 
     // TODO: Step 2.3 add snooze action
+    builder.addAction(
+        R.drawable.egg_icon,
+        applicationContext.getString(R.string.snooze),
+        snoozePendingIntent
+    )
 
     // TODO: Step 2.5 set priority
+    // To support devices running Android 7.1 (API level 25) or lower,
+    // you must also call setPriority() for each notification,
+    // using a priority constant from the NotificationCompat class.
+    builder.priority = NotificationCompat.PRIORITY_HIGH
 
     // TODO: Step 1.4 call notify
     // This ID represents the current notification instance and is needed for updating
