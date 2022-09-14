@@ -17,6 +17,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 33
@@ -65,4 +66,7 @@ dependencies {
     // Kotlin + coroutines
     def work_version = "2.7.1"
     implementation "androidx.work:work-runtime-ktx:$work_version"
+
+    implementation platform('com.google.firebase:firebase-bom:30.4.1')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 }
