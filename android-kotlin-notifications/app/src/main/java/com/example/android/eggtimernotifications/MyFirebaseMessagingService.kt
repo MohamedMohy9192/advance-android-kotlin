@@ -35,13 +35,18 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
         Log.d(TAG, "From: ${message.from}")
 
-        // TODO Step 3.5 check messages for data
-        // Check if message contains a data payload.
+        // TODO: Step 3.5 check messages for data
+        // Check if the message contains a data payload.
+        message.data.let {
+            Log.d(TAG, "Message data payload: " + message.data)
+        }
 
-
-        // TODO Step 3.6 check messages for notification and call sendNotification
-        // Check if message contains a notification payload.
-
+        // TODO: Step 3.6 check messages for notification and call sendNotification
+        // Check if the message contains a notification payload.
+        message.notification?.let {
+            Log.d(TAG, "Message Notification Body: ${it.body}")
+            sendNotification(it.body as String)
+        }
     }
     // [END receive_message]
 
@@ -79,7 +84,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
      * @param messageBody FCM message body received.
      */
     private fun sendNotification(messageBody: String) {
-        val notificationManager = ContextCompat.getSystemService(applicationContext, NotificationManager::class.java) as NotificationManager
+        val notificationManager = ContextCompat.getSystemService(
+            applicationContext,
+            NotificationManager::class.java
+        ) as NotificationManager
         notificationManager.sendNotification(messageBody, applicationContext)
     }
 
