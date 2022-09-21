@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">ClippingExample</string>
+
+    <!-- These will be used to display text on the canvas.-->
+    <string name="clipping">Clipping</string>
+    <string name="translated">translated text</string>
+    <string name="skewed">"Skewed and "</string>
 </resources>
