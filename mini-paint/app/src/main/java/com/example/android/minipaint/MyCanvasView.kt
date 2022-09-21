@@ -1,10 +1,7 @@
 package com.example.android.minipaint
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Path
+import android.graphics.*
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -56,6 +53,8 @@ class MyCanvasView(context: Context) : View(context) {
     // scaledTouchSlop returns the distance in pixels a touch can wander before the system thinks the user is scrolling.
     private val touchTolerance = ViewConfiguration.get(context).scaledTouchSlop
 
+    private lateinit var frame: Rect
+
     /**
      * The method is called by the Android system whenever a view changes size.
      * Because the view starts out with no size,
@@ -75,6 +74,11 @@ class MyCanvasView(context: Context) : View(context) {
         extraBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         extraCanvas = Canvas(extraBitmap)
         extraCanvas.drawColor(backgroundColor)
+
+        // Create the Rect that will be used for the frame, using the new dimensions and the inset.
+        // Calculate a rectangular frame around the picture.
+        val inset = 40
+        frame = Rect(inset, inset, width - inset, height - inset)
     }
 
     /**
@@ -90,6 +94,12 @@ class MyCanvasView(context: Context) : View(context) {
         // The 2D coordinate system used for drawing on a Canvas is in pixels,
         // and the origin (0,0) is at the top left corner of the Canvas.
 
+        // As the user draws on the screen, your app constructs the path and saves it in the bitmap extraBitmap.
+        // The onDraw() method displays the extra bitmap in the view's canvas.
+        // You can do more drawing in onDraw(). For example, you could draw shapes after drawing the bitmap.
+
+        // Draw a frame around the canvas.
+        canvas.drawRect(frame, paint)
     }
 
     /**
@@ -114,7 +124,12 @@ class MyCanvasView(context: Context) : View(context) {
         if (dx >= touchTolerance || dy >= touchTolerance) {
             // QuadTo() adds a quadratic bezier from the last point,
             // approaching control point (x1,y1), and ending at (x2,y2).
-            path.quadTo(currentX, currentY, (motionTouchEventX + currentX) / 2, (motionTouchEventY + currentY) / 2)
+            path.quadTo(
+                currentX,
+                currentY,
+                (motionTouchEventX + currentX) / 2,
+                (motionTouchEventY + currentY) / 2
+            )
             // Set the starting point for the next segment to the endpoint of this segment.
             currentX = motionTouchEventX
             currentY = motionTouchEventY
