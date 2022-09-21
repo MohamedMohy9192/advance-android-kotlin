@@ -5,7 +5,9 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
+import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
 import androidx.core.content.res.ResourcesCompat
 
 private const val STROKE_WIDTH = 12f // has to be float
@@ -42,6 +44,18 @@ class MyCanvasView(context: Context) : View(context) {
     // The path that is being drawn when following the user's touch on the screen.
     private var path = Path()
 
+    // Caching the x and y coordinates of the current touch event
+    private var motionTouchEventX = 0f
+    private var motionTouchEventY = 0f
+
+    // cache the latest x and y values. After the user stops moving and lifts their touch,
+    // these are the starting point for the next path (the next segment of the line to draw).
+    private var currentX = 0f
+    private var currentY = 0f
+
+    // scaledTouchSlop returns the distance in pixels a touch can wander before the system thinks the user is scrolling.
+    private val touchTolerance = ViewConfiguration.get(context).scaledTouchSlop
+
     /**
      * The method is called by the Android system whenever a view changes size.
      * Because the view starts out with no size,
@@ -75,5 +89,64 @@ class MyCanvasView(context: Context) : View(context) {
         canvas.drawBitmap(extraBitmap, 0f, 0f, null)
         // The 2D coordinate system used for drawing on a Canvas is in pixels,
         // and the origin (0,0) is at the top left corner of the Canvas.
+
+    }
+
+    /**
+     * This method is called when the user first touches the screen.
+     */
+    private fun touchStart() {
+        // Reset the path, move to the x-y coordinates of the touch event (motionTouchEventX and motionTouchEventY),
+        // and assign currentX and currentY to that value.
+        path.reset()
+        path.moveTo(motionTouchEventX, motionTouchEventY)
+        currentX = motionTouchEventX
+        currentY = motionTouchEventY
+    }
+
+    private fun touchMove() {
+        // Using a path, there is no need to draw every pixel and each time request a refresh of the display.
+        // Instead, you can (and will) interpolate a path between points for much better performance.
+        // Calculate the distance that has been moved (dx, dy).
+        val dx = Math.abs(motionTouchEventX - currentX)
+        val dy = Math.abs(motionTouchEventY - currentY)
+        // If the movement was further than the touch tolerance, add a segment to the path.
+        if (dx >= touchTolerance || dy >= touchTolerance) {
+            // QuadTo() adds a quadratic bezier from the last point,
+            // approaching control point (x1,y1), and ending at (x2,y2).
+            path.quadTo(currentX, currentY, (motionTouchEventX + currentX) / 2, (motionTouchEventY + currentY) / 2)
+            // Set the starting point for the next segment to the endpoint of this segment.
+            currentX = motionTouchEventX
+            currentY = motionTouchEventY
+            // Draw the path in the extra bitmap to cache it.
+            extraCanvas.drawPath(path, paint)
+        }
+        // Call invalidate() to (eventually call onDraw() and) redraw the view.
+        invalidate()
+    }
+
+    private fun touchUp() {
+        // Reset the path so it doesn't get drawn again.
+        path.reset()
+    }
+
+    /**
+     * The method on a view is called whenever the user touches the display.
+     * @param event MotionEvent
+     * @return Boolean
+     */
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        // Cache the x and y coordinates of the passed in event.
+        motionTouchEventX = event.x
+        motionTouchEventY = event.y
+
+        // Handle motion events for touching down on the screen, moving on the screen, and releasing touch on the screen.
+        // These are the events of interest for drawing a line on the screen.
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> touchStart()
+            MotionEvent.ACTION_MOVE -> touchMove()
+            MotionEvent.ACTION_UP -> touchUp()
+        }
+        return true
     }
 }
