@@ -20,6 +20,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -159,9 +160,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fader() {
+        val animator = ObjectAnimator.ofFloat(star, View.ALPHA, 0f)
+        animator.repeatCount = 1
+        animator.repeatMode = ObjectAnimator.REVERSE
+        animator.disableViewDuringAnimation(fadeButton)
+        animator.start()
     }
 
     private fun colorizer() {
+        // This time, that property isn't an android.util.Property object,
+        // but is instead a property exposed via a setter, View.setBackgroundColor(int).
+        // Since you cannot refer to a android.util.Property object directly,
+        // like you did before with ALPHA, etc.,
+        // you will use the approach of passing in the name of the property as a String.
+        // The name is then mapped internally to the appropriate setter/getter information on the target object.
+        val animator = ObjectAnimator.ofArgb(star.parent,
+            "backgroundColor", Color.BLACK, Color.RED)
+        animator.duration = 500
+        animator.repeatCount = 1
+        animator.repeatMode = ObjectAnimator.REVERSE
+        animator.disableViewDuringAnimation(colorizeButton)
+        animator.start()
     }
 
     private fun shower() {
