@@ -16,16 +16,19 @@
 
 package com.google.samples.propertyanimation
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ObjectAnimator
-import android.animation.PropertyValuesHolder
+import android.animation.*
+import android.annotation.SuppressLint
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.LinearInterpolator
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageView
 
 
 class MainActivity : AppCompatActivity() {
@@ -167,6 +170,7 @@ class MainActivity : AppCompatActivity() {
         animator.start()
     }
 
+    @SuppressLint("ObjectAnimatorBinding")
     private fun colorizer() {
         // This time, that property isn't an android.util.Property object,
         // but is instead a property exposed via a setter, View.setBackgroundColor(int).
@@ -174,8 +178,10 @@ class MainActivity : AppCompatActivity() {
         // like you did before with ALPHA, etc.,
         // you will use the approach of passing in the name of the property as a String.
         // The name is then mapped internally to the appropriate setter/getter information on the target object.
-        val animator = ObjectAnimator.ofArgb(star.parent,
-            "backgroundColor", Color.BLACK, Color.RED)
+        val animator = ObjectAnimator.ofArgb(
+            star.parent,
+            "backgroundColor", Color.BLACK, Color.RED
+        )
         animator.duration = 500
         animator.repeatCount = 1
         animator.repeatMode = ObjectAnimator.REVERSE
@@ -184,6 +190,75 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun shower() {
+        // a reference to the star field ViewGroup (which is just the parent of the current star view).
+        val container = star.parent as ViewGroup
+        // the width and height of that container (which you will use to calculate the end translation values for our falling stars).
+        val containerW = container.width
+        val containerH = container.height
+        // the default width and height of your star (which you will later alter with a scale factor to get different-sized stars).
+        var starW: Float = star.width.toFloat()
+        var starH: Float = star.height.toFloat()
+        // Create a new View to hold the star graphic. Because the star is a VectorDrawable asset,
+        // use an AppCompatImageView, which has the ability to host that kind of resource.
+        val newStar = AppCompatImageView(this)
+        newStar.setImageResource(R.drawable.ic_star)
+        newStar.layoutParams = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT
+        )
+        container.addView(newStar)
+        // Modify the star to have a random size, from .1x to 1.6x of its default size.
+        newStar.scaleX = Math.random().toFloat() * 1.5f + .1f
+        newStar.scaleY = newStar.scaleX
+        // Use this scale factor to change the cached width/height values
+        starW *= newStar.scaleX
+        starH *= newStar.scaleY
+        //  position the new star. Horizontally, it should appear randomly somewhere from the left edge to the right edge.
+        // This code uses the width of the star to position it from half-way off the screen on the left (-starW / 2)
+        // to half-way off the screen on the right (with the star positioned at (containerW - starW / 2).
+        newStar.translationX = Math.random().toFloat() *
+                containerW - starW / 2
+        // the rotation will use a smooth linear motion (moving at a constant rate over the entire rotation animation),
+        // while the falling animation will use an accelerating motion (simulating gravity pulling the star downward at a constantly faster rate).
+        // So you'll create two animators and add an interpolator to each.
+
+
+        // The mover animation is responsible for making the star "fall."
+        // It animates the TRANSLATION_Y property, similar to what you did with TRANSLATION_X in
+        // the earlier translation task, but causing vertical instead of horizontal motion.
+        // The code animates from -starH to (containerH + starH),
+        // which effectively places it just off the container at the top and moves it until it's
+        // just outside the container at the bottom
+        // The AccelerateInterpolator "interpolator" that you are setting on the star causes a gentle acceleration motion.
+        val mover = ObjectAnimator.ofFloat(
+            newStar, View.TRANSLATION_Y,
+            -starH, containerH + starH
+        )
+        mover.interpolator = AccelerateInterpolator(1f)
+        // For the rotation animation, the star will rotate a random amount between 0 and 1080 degrees (three times around). For the motion,
+        // use a LinearInterpolator, so the rotation will proceed at a constant rate as the star falls.
+        val rotator = ObjectAnimator.ofFloat(
+            newStar, View.ROTATION,
+            (Math.random() * 1080).toFloat()
+        )
+        rotator.interpolator = LinearInterpolator()
+        // AnimatorSet is basically a group of animations, along with instructions on when to run those animations.
+        // It can play animations in parallel, or sequentially
+
+        // Create the AnimatorSet and add the child animators to it (along with information to play them in parallel).
+        val set = AnimatorSet()
+        set.playTogether(mover, rotator)
+        // The default animation time of 300 milliseconds is too quick to enjoy the falling stars,
+        // so set the duration to a random number between 500 and 2000 milliseconds, so stars fall at different speeds.
+        set.duration = (Math.random() * 1500 + 500).toLong()
+        // Once newStar has fallen off the bottom of the screen, it should be removed from the container.
+        // Set a simple listener to wait for the end of the animation and remove it.
+        set.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                container.removeView(newStar)
+            }
+        })
+        set.start()
     }
 
 }
