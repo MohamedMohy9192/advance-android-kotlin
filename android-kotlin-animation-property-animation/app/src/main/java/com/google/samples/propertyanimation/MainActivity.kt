@@ -19,6 +19,7 @@ package com.google.samples.propertyanimation
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -73,6 +74,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun ObjectAnimator.disableViewDuringAnimation(view: View) {
+        addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationStart(animation: Animator) {
+                view.isEnabled = false
+            }
+
+            override fun onAnimationEnd(animation: Animator) {
+                view.isEnabled = true
+            }
+        })
+    }
+
     /**
      * create an animation that rotates the ImageView containing the star from a value of -360 to 0.
      * This means that the view, and thus the star inside it, will rotate in a full circle (360 degrees) around its center.
@@ -98,15 +111,7 @@ class MainActivity : AppCompatActivity() {
 
         // Animators have a concept of listeners, which call back into user code to notify the application of changes in the state of the animation.
         // you'd like to disable the ROTATE button as soon as the animation starts, and then re-enable it when the animation ends.
-
-        animator.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationStart(animation: Animator) {
-                rotateButton.isEnabled = false
-            }
-            override fun onAnimationEnd(animation: Animator) {
-                rotateButton.isEnabled = true
-            }
-        })
+        animator.disableViewDuringAnimation(rotateButton)
 
         // star spin around its center. But it does so really quickly.
         // In fact, it does it in 300 milliseconds, which is the default duration of all animations on the platform.
@@ -114,9 +119,43 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun translater() {
+        val animator = ObjectAnimator.ofFloat(star, View.TRANSLATION_X, 200f)
+        // Repetition is a way of telling animations to do the same task again and again.
+        // You can specify how many times to repeat
+        // Controls how many times it repeats after the first run
+        animator.repeatCount = 1
+        // You can also specify the repetition behavior,
+        // either REVERSE (for reversing the direction every time it repeats) or
+        // RESTART (for animating from the original start value to the original end value,
+        // thus repeating in the same direction every time).
+        // The type of repetition
+        animator.repeatMode = ObjectAnimator.REVERSE
+        animator.disableViewDuringAnimation(translateButton)
+        animator.start()
     }
 
     private fun scaler() {
+        //  PropertyValuesHolder, which is an object that holds information about both
+        //  a property and the values that that property should animate between.
+        // Scaling to a value of 4f means the star will scale to 4 times its default size.
+        val scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 4f)
+        val scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 4f)
+
+        // An ObjectAnimator can hold multiple PropertyValuesHolder objects,
+        // which will all animate together, in parallel, when the ObjectAnimator starts.
+        // The ideal use case for ObjectAnimators which use PropertyValuesHolder parameters
+        // is when you need to animate several properties on the same object in parallel.
+
+        val animator = ObjectAnimator.ofPropertyValuesHolder(
+            star, scaleX, scaleY
+        )
+
+        // leave the star's SCALE_X and SCALE_Y properties at their default values (1.0)
+        // when the animation is done.
+        animator.repeatCount = 1
+        animator.repeatMode = ObjectAnimator.REVERSE
+        animator.disableViewDuringAnimation(scaleButton)
+        animator.start()
     }
 
     private fun fader() {
