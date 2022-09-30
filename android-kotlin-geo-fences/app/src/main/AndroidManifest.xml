@@ -15,8 +15,7 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.android.treasureHunt">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
 <!--    TODO: Step 1 add in permissions for fine location and background-->
 
@@ -30,7 +29,8 @@
 
         <activity android:name=".HuntMainActivity"
             android:label="@string/title_activity_hunt"
-            android:launchMode="singleInstance">
+            android:launchMode="singleInstance"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
