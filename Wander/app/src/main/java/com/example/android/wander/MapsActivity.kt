@@ -11,11 +11,8 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.example.android.wander.databinding.ActivityMapsBinding
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.android.gms.maps.model.*
 import java.util.*
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -54,8 +51,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val homeLatLng = LatLng(latitude, longitude)
         // The zoom level controls how zoomed in you are on the map.
         val zoomLevel = 15f
+        //  the width in meters of the desired overlay
+        val overlaySize = 100f
+
         // Move the camera to homeLatLng
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, zoomLevel))
+        // A ground overlay is an image that is fixed to a map.
+        // Unlike markers, ground overlays are oriented to the Earth's surface rather than to the screen.
+        // Rotating, tilting, or zooming the map changes the orientation of the image.
+        // Ground overlays are useful when you wish to fix a single image in one area on the map.
+        val androidOverlay = GroundOverlayOptions()
+            .image(BitmapDescriptorFactory.fromResource(R.drawable.android))
+            .position(homeLatLng, overlaySize)
+
+        map.addGroundOverlay(androidOverlay)
         // Add a marker to the map at homeLatLng.
         map.addMarker(MarkerOptions().position(homeLatLng))
         setMapLongClick(map)
@@ -81,7 +90,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     .snippet(snippet)
                     // Use the default marker, but change the color to blue.
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                     // Note that POI markers are still red because you didn't add styling to the onPoiClick() method.
+                // Note that POI markers are still red because you didn't add styling to the onPoiClick() method.
             )
         }
     }
