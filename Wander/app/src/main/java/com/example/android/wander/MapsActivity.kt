@@ -1,7 +1,9 @@
 package com.example.android.wander
 
+import android.content.res.Resources
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 
@@ -12,9 +14,13 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.example.android.wander.databinding.ActivityMapsBinding
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.MapStyleOptions
 import java.util.*
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+
+    private val TAG = MapsActivity::class.java.simpleName
 
     private lateinit var map: GoogleMap
     private lateinit var binding: ActivityMapsBinding
@@ -54,7 +60,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         map.addMarker(MarkerOptions().position(homeLatLng))
         setMapLongClick(map)
         setPoiClick(map)
-
+        setMapStyle(map)
     }
 
     private fun setMapLongClick(map: GoogleMap) {
@@ -73,6 +79,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     .position(latLng)
                     .title(getString(R.string.dropped_pin))
                     .snippet(snippet)
+                    // Use the default marker, but change the color to blue.
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                     // Note that POI markers are still red because you didn't add styling to the onPoiClick() method.
             )
         }
     }
@@ -90,6 +99,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             // Show the info window.
             poiMarker?.showInfoWindow()
         }
+    }
+
+    private fun setMapStyle(map: GoogleMap) {
+        try {
+            // Customize the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            val success = map.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                    this,
+                    R.raw.map_style
+                )
+            )
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.")
+            }
+        }
+        // Handle the situation of a missing style file
+        catch (e: Resources.NotFoundException) {
+            Log.e(TAG, "Can't find style. Error: ", e)
+        }
+
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
