@@ -16,35 +16,27 @@
 
 package com.example.android.treasureHunt
 
-import android.app.PendingIntent
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.Manifest
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
+import android.app.PendingIntent
+import android.content.Intent
 import android.content.IntentSender
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
-
 import com.example.android.treasureHunt.databinding.ActivityHuntMainBinding
 import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.Geofence
-import com.google.android.gms.location.GeofencingClient
-import com.google.android.gms.location.GeofencingRequest
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
-import com.google.android.gms.location.Priority
+import com.google.android.gms.location.*
 import com.google.android.material.snackbar.Snackbar
 
 /**
@@ -67,13 +59,13 @@ class HuntMainActivity : AppCompatActivity() {
 
     // Check whether the device is running Android Q or later.
     private val runningQOrLater =
-        android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
 
     // A PendingIntent for the Broadcast Receiver that handles geofence transitions.
     private val geofencePendingIntent: PendingIntent by lazy {
         val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
         intent.action = ACTION_GEOFENCE_EVENT
-        PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -394,7 +386,21 @@ class HuntMainActivity : AppCompatActivity() {
      * permission.
      */
     private fun removeGeofences() {
-        // TODO: Step 12 add in code to remove the geofences
+        //  it is a best practice to remove them, which stops monitoring, in order to save battery and CPU cycles.
+        if (!foregroundAndBackgroundLocationPermissionApproved()) {
+            return
+        }
+        geofencingClient.removeGeofences(geofencePendingIntent).run {
+            // inform the user with a toast that the geofences were successfully removed.
+            addOnSuccessListener {
+                Log.d(TAG, getString(R.string.geofences_removed))
+                Toast.makeText(applicationContext, R.string.geofences_removed, Toast.LENGTH_SHORT)
+                    .show()
+            }
+            addOnFailureListener {
+                Log.d(TAG, getString(R.string.geofences_not_removed))
+            }
+        }
     }
 
     companion object {
