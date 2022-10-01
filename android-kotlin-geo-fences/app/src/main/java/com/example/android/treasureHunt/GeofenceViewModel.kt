@@ -35,11 +35,10 @@ import androidx.lifecycle.ViewModel
 class GeofenceViewModel(state: SavedStateHandle) : ViewModel() {
     private val _geofenceIndex = state.getLiveData(GEOFENCE_INDEX_KEY, -1)
     private val _hintIndex = state.getLiveData(HINT_INDEX_KEY, 0)
-    val geofenceIndex: LiveData<Int>
-        get() = _geofenceIndex
+    val geofenceIndex: LiveData<Int> get() = _geofenceIndex
 
     val geofenceHintResourceId = Transformations.map(geofenceIndex) {
-        val index = geofenceIndex?.value ?: -1
+        val index = geofenceIndex.value ?: -1
         when {
             index < 0 -> R.string.not_started_hint
             index < GeofencingConstants.NUM_LANDMARKS -> GeofencingConstants.LANDMARK_DATA[geofenceIndex.value!!].hint
@@ -56,14 +55,14 @@ class GeofenceViewModel(state: SavedStateHandle) : ViewModel() {
     }
 
     fun updateHint(currentIndex: Int) {
-        _hintIndex.value = currentIndex+1
+        _hintIndex.value = currentIndex + 1
     }
 
     fun geofenceActivated() {
         _geofenceIndex.value = _hintIndex.value
     }
 
-    fun geofenceIsActive() =_geofenceIndex.value == _hintIndex.value
+    fun geofenceIsActive() = _geofenceIndex.value == _hintIndex.value
     fun nextGeofenceIndex() = _hintIndex.value ?: 0
 }
 
