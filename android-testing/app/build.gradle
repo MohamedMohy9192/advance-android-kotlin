@@ -25,6 +25,7 @@ android {
         enabled = true
         enabledForTests = true
     }
+    namespace 'com.example.android.architecture.blueprints.todoapp'
 }
 
 dependencies {
