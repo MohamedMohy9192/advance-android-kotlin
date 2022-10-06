@@ -15,7 +15,6 @@
  */
 package com.example.android.architecture.blueprints.todoapp.taskdetail
 
-import android.app.Application
 import androidx.annotation.StringRes
 import androidx.lifecycle.*
 import com.example.android.architecture.blueprints.todoapp.Event
@@ -23,7 +22,6 @@ import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.data.Result
 import com.example.android.architecture.blueprints.todoapp.data.Result.Success
 import com.example.android.architecture.blueprints.todoapp.data.Task
-import com.example.android.architecture.blueprints.todoapp.data.source.DefaultTasksRepository
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
 import kotlinx.coroutines.launch
 
