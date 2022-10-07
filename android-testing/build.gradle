@@ -30,6 +30,8 @@ ext {
     compileSdkVersion = 33
 
     // App dependencies
+    dexMakerVersion = '2.28.3'
+    mockitoVersion = '4.8.0'
     fragmentVersion = "1.5.3"
     archTestingVersion = '2.1.0'
     robolectricVersion = '4.9'

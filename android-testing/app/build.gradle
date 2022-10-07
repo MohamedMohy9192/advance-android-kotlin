@@ -75,6 +75,14 @@ dependencies {
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion"
     androidTestImplementation "junit:junit:$junitVersion"
     debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
+    androidTestImplementation "org.mockito:mockito-core:$mockitoVersion"
+    // This library is required to use Mockito in an Android project.
+    // Mockito needs to generate classes at runtime. On Android,
+    // this is done using dex byte code, and so this library enables Mockito to
+    // generate objects during runtime on Android.
+    androidTestImplementation "com.linkedin.dexmaker:dexmaker-mockito:$dexMakerVersion"
+    // contain testing code for more advanced views, such as DatePicker and RecyclerView
+    androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
