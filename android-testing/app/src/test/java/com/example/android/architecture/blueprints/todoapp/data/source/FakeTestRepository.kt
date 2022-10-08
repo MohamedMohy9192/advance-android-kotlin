@@ -6,15 +6,38 @@ import com.example.android.architecture.blueprints.todoapp.data.Result
 import com.example.android.architecture.blueprints.todoapp.data.Result.Success
 import com.example.android.architecture.blueprints.todoapp.data.Task
 import kotlinx.coroutines.runBlocking
+import com.example.android.architecture.blueprints.todoapp.data.Result.Error
 
-class FakeTestRepository : TasksRepository  {
+class FakeTestRepository : TasksRepository {
+
+    // you need to artificially cause the error situation.
+    // One way to do this is to update your test doubles so that you can "set" them to an error state,
+    // using a flag. If the flag is false, the test double functions as normal.
+    // But if the flag is set to true, then the test double returns a realistic error
+    private var shouldReturnError = false
 
     var tasksServiceData: LinkedHashMap<String, Task> = LinkedHashMap()
 
     private val observableTasks = MutableLiveData<Result<List<Task>>>()
 
+    fun setReturnError(value: Boolean) {
+        shouldReturnError = value
+    }
+
+    override suspend fun getTask(taskId: String, forceUpdate: Boolean): Result<Task> {
+        if (shouldReturnError) {
+            return Result.Error(Exception("Test exception"))
+        }
+        tasksServiceData[taskId]?.let {
+            return Success(it)
+        }
+        return Error(Exception("Could not find task"))
+    }
 
     override suspend fun getTasks(forceUpdate: Boolean): Result<List<Task>> {
+        if (shouldReturnError) {
+            return Error(Exception("Test exception"))
+        }
         return Success(tasksServiceData.values.toList())
     }
 
@@ -32,10 +55,6 @@ class FakeTestRepository : TasksRepository  {
     }
 
     override fun observeTask(taskId: String): LiveData<Result<Task>> {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun getTask(taskId: String, forceUpdate: Boolean): Result<Task> {
         TODO("Not yet implemented")
     }
 
