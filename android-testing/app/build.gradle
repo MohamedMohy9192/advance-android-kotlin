@@ -28,6 +28,8 @@ android {
 
     testOptions.unitTests {
         includeAndroidResources = true
+        // required to keep your unit tests running as you add idling resource code to your application code
+        returnDefaultValues = true
 
         // ...
     }
@@ -84,6 +86,7 @@ dependencies {
     // contain testing code for more advanced views, such as DatePicker and RecyclerView
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
     androidTestImplementation "androidx.arch.core:core-testing:$archTestingVersion"
+    implementation "androidx.test.espresso:espresso-idling-resource:$espressoVersion"
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
