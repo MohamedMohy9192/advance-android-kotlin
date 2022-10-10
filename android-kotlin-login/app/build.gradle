@@ -51,6 +51,8 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.2'
     implementation "androidx.navigation:navigation-ui-ktx:2.5.2"
     implementation 'androidx.preference:preference-ktx:1.2.0'
+    implementation platform('com.google.firebase:firebase-bom:30.5.0')
+    implementation 'com.google.firebase:firebase-auth'
     implementation 'com.firebaseui:firebase-ui-auth:7.2.0'
     testImplementation 'junit:junit:4.13.2'
 }
